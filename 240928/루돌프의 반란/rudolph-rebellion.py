@@ -5,7 +5,7 @@ input = sys.stdin.readline
 N, M, P, C, D = map(int, input().split())
 R_Y, R_X = map(int, input().split())
 santa = [[0, 0, 0, 0] for _ in range(P+1)]
-santa[0][3] = M+1
+santa[0][3] = M+2
 field = [[0 for _ in range(N+1)] for _ in range(N+1)]
 field[R_Y][R_X] = -1
 
@@ -79,7 +79,7 @@ def domino(santa_num, direction_y, direction_x):
     next_y, next_x = santa_y + direction_y, santa_x + direction_x
 
     if not check_boundary(next_y, next_x): # 장외
-        santa[santa_num][3] = M+1
+        santa[santa_num][3] = M+2
         return
 
     if field[next_y][next_x] != 0:
@@ -94,10 +94,11 @@ def conflict(santa_num, target_y, target_x, direction_y, direction_x, point, tur
     santa[santa_num][2] += point
     santa[santa_num][3] = turn+1
 
+
     next_y, next_x = target_y + direction_y*point, target_x + direction_x*point
 
     if not check_boundary(next_y, next_x): # 장외
-        santa[santa_num][3] = M+1
+        santa[santa_num][3] = M+2
         return
 
     if field[next_y][next_x] != 0:
@@ -108,7 +109,6 @@ def conflict(santa_num, target_y, target_x, direction_y, direction_x, point, tur
     santa[santa_num][1] = next_x
 
 for turn in range(1, M + 1):
-
     # 루돌프 로직
     target_y, target_x = find_santa() # 산타 찾기
     if target_y == 0 and target_x ==0: # 산타가 전부 탈락
@@ -138,9 +138,8 @@ for turn in range(1, M + 1):
             santa[i][1] = next_x
 
     for s in santa[1:]:
-        if s[3]<=M:
+        if s[3]<M+2:
             s[2]+=1
-
 result = ''
 
 for i in range(1, P+1):

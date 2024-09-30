@@ -33,7 +33,6 @@ def check_boundary(y, x):
 def move_check(num, d):
     result = []
     r, c, h, w = knights[num][0], knights[num][1], knights[num][2], knights[num][3]
-    # print(num, r, c, h, w)
     for y in range(r, r + h):
         for x in range(c, c + w):
             if not check_boundary(y+d[0], x+d[1]): # 벽이라면 False
@@ -46,13 +45,13 @@ def move_check(num, d):
                     return False
                 else:
                     result.extend(tmp)
-            result.append(num)
+    result.append(num)
     return result
 
-def check_damage(num, d): # 피해 확인
+def check_damage(num): # 피해 확인
     global field, knights
     r, c, h, w, k, damage = knights[num]
-    r, c = r+d[0], c+d[1]
+
     for y in range(r, r + h): # 함정 탐색
         for x in range(c, c + w):
             if field[y][x] == 1:
@@ -62,32 +61,34 @@ def check_damage(num, d): # 피해 확인
     if k <= damage: # 죽었으면 return
         return
 
-    knights[num][0] = r # 위치 업뎃
-    knights[num][1] = c
-
 
 
 for k in range(Q): # 왕의 명령 == main
     i, d_index = map(int, input().split())
-    tmp = move_check(i, d[d_index])
+    if knights[i][4] <= knights[i][5]:
+        continue
+    tmp = move_check(i, d[d_index]) # 이동 가능한지 체크 (벽인지) / 이동하는 기사 리스트 반환
     if not tmp:
         continue
 
-    knights[i][0] += d[d_index][0]
-    knights[i][1] += d[d_index][1]
-    for j in set(tmp):
-        if i != j:
-            check_damage(j, d[d_index])
 
-    clean_position()
+    for j in set(tmp): # 나머지 기사 움직임
+        knights[j][0] += d[d_index][0]
+        knights[j][1] += d[d_index][1]
 
-    for j in range(1, N+1):
+    for j in set(tmp): # 피해 체크
+        if j != i:
+            check_damage(j)
+
+    clean_position() # 현위치 clean
+
+    for j in range(1, N+1): # 새로 생긴 상태에 맞게 위치 update
         if knights[j][4] <= knights[j][5]:
             continue
         fill_position(j, knights[j][0], knights[j][1], knights[j][2], knights[j][3])
 
 summation = 0
-for j in range(1, N+1):
+for j in range(1, N+1): # 체력이 남은 기사만 합
     if knights[j][4] <= knights[j][5]:
         continue
     summation += knights[j][5]

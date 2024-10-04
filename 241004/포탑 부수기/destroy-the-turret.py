@@ -1,5 +1,6 @@
 import sys
 input = sys.stdin.readline
+from collections import deque
 
 N, M, K = map(int, input().split())
 field = [[0 for _ in range(M+1)]]
@@ -60,28 +61,22 @@ def find_target():
 d = [(0, 1), (1, 0), (0, -1), (-1, 0)]
 da = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
 
-def lazer(visited, y, x): # 초기에 history에 attacker 넣어서 호출할 것
-    global target_y, target_x
+def lazer(y, x):
+    visited = [[False] * (M + 1) for _ in range(N + 1)]
+    queue = deque([(y, x, [])])
+    visited[y][x] = True
 
-    if visited[y][x] or field[y][x] == 0: # 방문했던 곳은 패스, 부서진 포탑은 못지나감
-        return False
-    if target_y == y and target_x == x: # 목적지 도달
-        return [(y, x)]
+    while queue:
+        cur_y, cur_x, path = queue.popleft()
+        if (cur_y, cur_x) == (target_y, target_x):
+            return path + [(cur_y, cur_x)]
 
-    visited[y][x] = True  # 메모리
+        for dy, dx in d:
+            ny, nx = (cur_y + dy - 1) % N + 1, (cur_x + dx - 1) % M + 1
+            if not visited[ny][nx] and field[ny][nx] > 0:
+                visited[ny][nx] = True
+                queue.append((ny, nx, path + [(cur_y, cur_x)]))
 
-    result = []
-    for dy, dx in d:
-        tmp = lazer(visited, (y + dy - 1) % N + 1, (x + dx - 1) % M + 1)
-        if tmp:
-            result.append(tmp+[(y,x)])
-
-
-    visited[y][x] = False
-
-    if result: # 경로가 있으면
-        shortest_path = min(result, key=len)
-        return shortest_path
     return False
 
 def bomb():
@@ -90,9 +85,8 @@ def bomb():
     course = [(target_y, target_x)]
     for dy, dx in da:
         ty, tx = (target_y+dy-1)%N+1, (target_x+dx-1)%M+1
-        if field[ty][tx] == 0 or (ty == attacker_y and tx == attacker_x): # 벽이거나 공격자라면
-            continue
-        course.append((ty, tx))
+        if field[ty][tx] > 0 and (ty, tx) != (attacker_y, attacker_x): # 살아있는 포탑만
+            course.append((ty, tx))
     course.append((attacker_y, attacker_x))
 
     return course
@@ -107,8 +101,7 @@ for k in range(1, K+1):
         break
     field[attacker_y][attacker_x] += (N + M)
 
-    visited = [[False for _ in range(M+1)] for _ in range(N+1)]
-    course = lazer(visited, attacker_y, attacker_x)
+    course = lazer(attacker_y, attacker_x)
 
     if not course: # 레이저 공격이 불가능 하다면
         course = bomb()

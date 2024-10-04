@@ -15,7 +15,7 @@ target_y, target_x = 0, 0
 def find_attacker():
     global attacker_y, attacker_x
 
-    damage, turn, y, x = 5001, K, 0, 0
+    damage, turn, y, x = 5001, -1, 0, 0
     for i in range(1, N+1):
         for j in range(1, M+1):
             if field[i][j] <= 0:
@@ -29,21 +29,18 @@ def find_attacker():
                     turn = history[i][j]
                     y, x = i, j
                 elif history[i][j] == turn:
-                    if (i + j) > (y + x): # 합이 더 큰경우
+                    if (i + j) > (y + x) or ((i + j) == (y + x) and j > x): # 합이 더 큰경우 / 열
                         y, x = i, j
-                    elif (i + j) == (y + x) and j > x: # 열이 더 큰경우
-                        y, x = i, j
-    field[y][x] += N+M
     attacker_y, attacker_x = y, x
 
 def find_target():
     global target_y, target_x
 
-    damage, turn, y, x = 0, K, 0, 0
+    damage, turn, y, x = 0, K+1, 0, 0
 
     for i in range(1, N+1):
         for j in range(1, M+1):
-            if field[i][j] <= 0:
+            if field[i][j] <= 0 or (i==attacker_y and j==attacker_x):
                 continue
             if field[i][j] > damage:
                 damage = field[i][j]
@@ -54,9 +51,7 @@ def find_target():
                     turn = history[i][j]
                     y, x = i, j
                 elif history[i][j] == turn:
-                    if (i + j) < (y + x):
-                        y, x = i, j
-                    elif (i + j) == (y + x) and j < x:
+                    if (i + j) < (y + x) or ((i + j) == (y + x) and j < x):
                         y, x = i, j
 
 
@@ -106,8 +101,12 @@ def bomb():
 
 
 for k in range(1, K+1):
-    find_target()
     find_attacker()
+    find_target()
+    if target_y == 0 and target_x == 0:
+        break
+    field[attacker_y][attacker_x] += (N + M)
+
     visited = [[False for _ in range(M+1)] for _ in range(N+1)]
     course = lazer(visited, attacker_y, attacker_x)
 

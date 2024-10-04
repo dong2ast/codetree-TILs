@@ -54,8 +54,11 @@ def find_target():
                     turn = history[i][j]
                     y, x = i, j
                 elif history[i][j] == turn:
-                    if (i + j) < (y + x): y, x = i, j
-                    elif (i + j) == (y + x) and j < x: y, x = i, j
+                    if (i + j) < (y + x):
+                        y, x = i, j
+                    elif (i + j) == (y + x) and j < x:
+                        y, x = i, j
+
 
     target_y, target_x = y, x
 
@@ -103,13 +106,14 @@ def bomb():
 
 
 for k in range(1, K+1):
-    find_attacker()
     find_target()
-
+    find_attacker()
     visited = [[False for _ in range(M+1)] for _ in range(N+1)]
     course = lazer(visited, attacker_y, attacker_x)
+
     if not course: # 레이저 공격이 불가능 하다면
         course = bomb()
+
 
     for ty, tx in course[1:-1]: # 피해계산
         field[ty][tx] -= field[attacker_y][attacker_x]//2 # 경로 피해

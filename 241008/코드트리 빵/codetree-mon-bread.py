@@ -60,19 +60,23 @@ def find_path_and_move(people_index):
 
 
 def find_base(start_y, start_x):
-    queue = deque([(start_y, start_x)])
+    queue = deque([(start_y, start_x, 0)])
     visited = [(start_y, start_x)]
 
+    result = []
+
     while queue:
-        y, x = queue.popleft()
+        y, x, value = queue.popleft()
 
         if field[y][x] == 1:
-            return y, x
+            result.append((y, x, value))
 
         for dy, dx in d:
             if can_go(y + dy, x + dx) and (y + dy, x + dx) not in visited:
-                queue.append((y + dy, x + dx))
+                queue.append((y + dy, x + dx, value+1))
                 visited.append((y + dy, x + dx))
+    result.sort(key=lambda k: (k[2], k[0], k[1]))
+    return result[0][0], result[0][1]
 
 
 def check_conv():

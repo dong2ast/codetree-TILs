@@ -43,6 +43,7 @@ def bfs(s_y, s_x, people_index):
             if can_go(y + dy, x + dx) and (y + dy, x + dx) not in visited:
                 queue.append((y + dy, x + dx, pos + 1))
                 visited.append((y + dy, x + dx))
+    return 255
 
 
 def find_path_and_move(people_index):

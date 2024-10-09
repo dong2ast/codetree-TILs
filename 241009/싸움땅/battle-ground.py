@@ -49,29 +49,29 @@ def win(y, x, index, earn):
 
     p_y, p_x, dist, s, gun = player[index]
 
-    gun = compare_gun(y, x, gun)
-    pos[y][x] = index
-    player[index] = [y, x, dist, s, gun]
+    gun = compare_gun(y, x, gun) # 총 업뎃
+    pos[y][x] = index # 위치 수정
+    player[index] = [y, x, dist, s, gun] # 정보 업뎃
 
 
 def lose(y, x, index):
     global player, field
 
     p_y, p_x, dist, s, gun = player[index]
-    if gun != 0:
+    if gun != 0: # 총 내려놓기
         field[y][x].append(gun)
     gun = 0
 
-    for i in range(4):
+    for i in range(4): # 도망갈 방향 탐색
         i = (dist+i)%4
         dy, dx = d[i]
         if 0<y+dy<=n and 0<x+dx<=n and pos[y+dy][x+dx]==0:
             p_y, p_x = y+dy, x+dx
             dist = i
             break
-    pos[p_y][p_x] = index
-    gun = compare_gun(p_y, p_x, gun)
-    player[index] = [p_y, p_x, dist, s, gun]
+    pos[p_y][p_x] = index # 좌표수정
+    gun = compare_gun(p_y, p_x, gun) # 총 비교
+    player[index] = [p_y, p_x, dist, s, gun] # 정보 업뎃
 
 
 
@@ -88,9 +88,9 @@ def battle(y, x, contender):
     winner, loser, earn = -1, -1, 0
     if c_power == r_power:
         if c_s > r_s:
-            winner, loser= contender, remainder
+            winner, loser = contender, remainder
         else:
-            winner, loser= remainder, contender
+            winner, loser = remainder, contender
     elif c_power > r_power:
         winner, loser, earn = contender, remainder, c_power-r_power
     else:
@@ -110,13 +110,15 @@ def move(player_index):
     pos[y][x] = 0
 
     y, x, dist = check_boundary(y, x, dist) # 한칸 이동
+    player[player_index][0], player[player_index][1], player[player_index][2] = y, x, dist
+
 
     if pos[y][x] > 0: # 플레이어와 배틀
         battle(y, x, player_index)
     else: # 총기비교 및 교체 (플레이어가 없는경우)
         gun = compare_gun(y, x, gun)
         pos[y][x] = player_index
-        player[player_index] = [y, x, dist, s, gun] # 이동완료
+        player[player_index][4] = gun # 이동완료
 
 
 
